@@ -116,6 +116,12 @@ import {
   loadProviderEndpointsList,
 } from "./provider-endpoints-mcp.mjs";
 import {
+  LIST_RPC_ENDPOINTS_INSTRUCTIONS,
+  LIST_RPC_ENDPOINTS_MCP_TOOL,
+  LIST_RPC_ENDPOINTS_OUTPUT_SCHEMA,
+  loadRpcEndpointsList,
+} from "./rpc-endpoints-mcp.mjs";
+import {
   GET_NETWORK_HEALTH_INSTRUCTIONS,
   GET_NETWORK_HEALTH_MCP_TOOL,
   GET_NETWORK_HEALTH_OUTPUT_SCHEMA,
@@ -782,8 +788,7 @@ export const MCP_INSTRUCTIONS =
   "unpromoted candidate surfaces still pending review, list_endpoints the " +
   "network-wide monitored endpoint-resource catalog, " +
   LIST_EVIDENCE_INSTRUCTIONS +
-  "list_rpc_endpoints the monitored " +
-  "Bittensor RPC endpoint catalog, " +
+  LIST_RPC_ENDPOINTS_INSTRUCTIONS +
   LIST_SOURCE_SNAPSHOTS_INSTRUCTIONS +
   "list_rpc_pools the load-balanced RPC pool " +
   "scores, " +
@@ -6479,20 +6484,9 @@ export const MCP_TOOLS = [
     },
   },
   {
-    name: "list_rpc_endpoints",
-    title: "List Bittensor RPC endpoints",
-    description:
-      "Fetch the catalog of monitored Bittensor base-layer RPC endpoints and " +
-      "their status (each endpoint's URL, network, and probe-derived " +
-      "health/latency). This is the full-catalog view; use get_best_rpc_endpoint " +
-      "instead to pick one live-healthy endpoint. Mirrors GET /api/v1/rpc/endpoints.",
-    inputSchema: {
-      type: "object",
-      properties: {},
-      additionalProperties: false,
-    },
-    async handler(_args, ctx) {
-      return loadArtifactData(ctx, "/metagraph/rpc-endpoints.json");
+    ...LIST_RPC_ENDPOINTS_MCP_TOOL,
+    async handler(args, ctx) {
+      return loadRpcEndpointsList(ctx, args);
     },
   },
   {
@@ -10390,16 +10384,7 @@ const TOOL_OUTPUT_SCHEMAS = {
     },
   },
   list_source_snapshots: LIST_SOURCE_SNAPSHOTS_OUTPUT_SCHEMA,
-  list_rpc_endpoints: {
-    type: "object",
-    additionalProperties: true,
-    required: [],
-    properties: {
-      endpoints: { type: "array", items: { type: "object" } },
-      generated_at: NULLABLE_STRING,
-      schema_version: { type: ["string", "integer", "null"] },
-    },
-  },
+  list_rpc_endpoints: LIST_RPC_ENDPOINTS_OUTPUT_SCHEMA,
   list_evidence: LIST_EVIDENCE_OUTPUT_SCHEMA,
   list_fixtures: {
     type: "object",
